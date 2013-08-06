@@ -333,7 +333,7 @@
             deep = target;
             target = arguments[1] || {};
             // skip the boolean and the target
-             i = 2;
+            i = 2;
         }
 
         // Handle case when target is a string or something (possible in deep copy)
