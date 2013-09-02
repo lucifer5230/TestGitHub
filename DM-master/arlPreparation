@@ -1,0 +1,14 @@
+cd /tmp
+sudo -u hdfs hadoop fs -rmr /spo/tmp/session
+sudo -u hdfs pig /home/hadoop/DM/sessionfpg.pig
+
+sudo -u hdfs hadoop fs -rmr /tmp/isolatedsessions
+rm -rf sessions
+sudo -u hdfs hadoop fs -cat /spo/tmp/session/part* | python /home/hadoop/DM/sessionIsolation.py > sessions
+sudo -u hdfs hadoop fs -copyFromLocal sessions /tmp/isolatedsessions
+
+sudo -u hdfs hadoop fs -rmr /tmp/isosession_ly
+rm -rf frequentpatterns
+sudo -u hdfs mahout fpg -i /tmp/isolatedsessions -o /tmp/isosession_ly -k 500 -method mapreduce -s 2000
+sudo -u hdfs mahout seqdumper -i  /tmp/isosession_ly/frequentpatterns -n 100 -o frequentpatterns
+cat frequentpatterns | python /home/hadoop/DM/arl.py | hbase shell
